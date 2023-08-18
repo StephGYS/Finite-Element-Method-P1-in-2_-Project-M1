@@ -1,0 +1,33 @@
+//Validation.ffem //pb fourier/Robin
+//PRETRAITEMENT
+
+mesh Th=readmesh("fusee.msh");
+int RefDir=1, RefNeu=2, RefFou=3 ;
+
+real Ka=0.024; //0.025conductivité de l'air pour T=293 Kelvin
+real Kb=237; //237 conducti.... du bouclier(Aluminium pour T=293)   "fixe"
+real e=100; // en m 100                       "au choix"
+real V=1500; //en m/s                         "au choix"
+real x0=0.015, y0=0.015; //   (x0,y0)            "fixe"
+
+func alphaD=Kb/e;
+func beta=10^8;;
+func f=-0.5 * exp( - ((x-x0)^2+(y-y0)^2) ); //donnée
+func uE=(10^(-3))*(V^2);                   //donnée
+func uD=293.15; //20 celsuis              //donnée
+func uF=uE; //cdt de fourier        
+ 
+//TRAITEMENT
+fespace Vh(Th,P1); // espace EF
+Vh uh,vh; //inconnue et fct test
+
+problem Pfr(uh,vh,solver=Cholesky)= int2d(Th)( Ka*(dx(uh)*dx(vh)+dy(uh)*dy(vh)) ) +int1d(Th)(alphaD*uh*vh) + int1d(Th)(beta*uh*vh)
+                                    - int2d(Th)(f*vh) - int1d(Th)(alphaD*uh*vh) - int1d(Th)(beta*uh*vh) 
+                                    + on(RefDir,uh=uD) + on(RefFou,uh=uF) ; //def de FV avec fourier/Robin et Dirichlet          
+Pfr; //Appel au solveur EF!=>uh calculé!
+//.................
+//Calcul d'erreurs
+varf b(uh,vh)=int2d(Th)( Ka*dx(uh)*dx(vh)+dy(uh)*dy(vh) ) +int1d(Th)(alphaD*uD*vh); //forme bilnéaire
+matrix K=b(Vh,Vh); //matrice de rigidité
+
+plot(Th,uh,value=true,fill=true);

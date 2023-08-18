@@ -1,0 +1,37 @@
+//=====================================================
+//PROJET
+// maillage non structuré d'un domaine en forme de "fusée":
+//=====================================================
+
+real R = 0.025, l=0.08, ll=0.2, L=0.5 ,ex=0.08;
+int Fou=3, Neu=2, Dir=1;
+
+//sommets caractéristiques de la géométrie:
+real x0=R, y0=0;
+real x1=R, y1=l;
+real x2=ex, y2=ll;
+real x3=ex, y3=L;
+real x4=-ex, y4=L;
+real x5=-ex, y5=ll;
+real x6=-R, y6=l;
+real x7=-R, y7=0;
+real xA=0.015, yA=0.015;
+
+//parametrage des bords:
+border ce(t=-pi, 0){x=cos(t)*R;y=sin(t)*R;label=Fou;}
+border a(t=0,1){x=x0+t*(x1-x0); y=y0+t*(y1-y0); label=Neu;}
+border b(t=0,1){x=x1+t*(x2-x1); y=y1+t*(y2-y1); label=Fou;}
+border c(t=0,1){x=x2+t*(x3-x2); y=y2+t*(y3-y2); label=Neu;}
+border d(t=0,1){x=x3+t*(x4-x3); y=y3+t*(y4-y3); label=Dir;}
+border e(t=0,1){x=x4+t*(x5-x4); y=y4+t*(y5-y4); label=Neu;}
+border f(t=0,1){x=x5+t*(x6-x5); y=y5+t*(y6-y5); label=Fou;}
+border g(t=0,1){x=x6+t*(x7-x6); y=y6+t*(y7-y6); label=Neu;}
+
+
+// discrétisation:
+int n=10;
+mesh Th = buildmesh(ce(n)+a(n)+b(n)+c(n)+d(n)+e(n)+f(n)+g(n));
+
+
+plot(Th);
+savemesh(Th,"fusee.msh");
